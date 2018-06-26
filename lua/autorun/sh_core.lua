@@ -7,7 +7,7 @@ Anti-Cheat & Intrusion-Detection System ( ACIDS )
 Version : 0.0.1
 Last Updated : 6/26/2018
 
-Created By MinnesotaJeb
+Created By mnbytes_
 
 */
 
