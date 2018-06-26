@@ -17,7 +17,14 @@ if ( SERVER ) then
 
 	function ACIDS_GenerateKey()
 	
-		Server_Key = ''
+		local USED_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+	
+		local INT1 = tostring( math.floor( math.Rand( 0, 1000000 ) ) )
+		local INT2 = tostring( math.floor( math.Rand( 0, 1000000 ) ) )
+		local INT3 = tostring( math.floor( math.Rand( 0, 1000000 ) ) )
+		local INT4 = tostring( math.floor( math.Rand( 0, 1000000 ) ) )
+		local INT5 = tostring( math.floor( math.Rand( 0, 1000000 ) ) )
+		local INT6 = tostring( math.floor( math.Rand( 0, 1000000 ) ) )
 	
 	end
 	
@@ -51,20 +58,56 @@ if ( SERVER ) then
 	
 	local PLAYER = FindMetaTable( 'Player' )
 	
+	--> SETUP NETWORKING <--
+	
+	hook.Add( 'Initialize', 'SetupACNetworking', function()
+	
+		util.AddNetworkString( 'ACIDS_PerformACScan' )
+		util.AddNetworkString( 'ACIDS_PositiveResults' )
+		
+		print( '[ ACIDS ] AntiCheat Networking Setup Completed' )
+	
+	end )
+	
 	--> CREATE THE ANTICHEAT TIMER <--
 	
 	function PLAYER:ACIDS_CreateACTimer()
 	
 		local ID = tostring( self:SteamID64() )
+		
+		timer.Create( 'ACIDS_ACTimer_' .. ID, 0, 0, function()
+		
+			net.Start( 'ACIDS_PerformACScan' )
+			net.Send( ply )
+		
+		end )
+		
+		print( '[ ACIDS ] ' .. self:Name() .. "'s AntiCheat Timer Has Been Created" )
 	
 	end
+	
+	hook.Add( 'PlayerInitialSpawn', 'CreateACTimer', function( ply )
+	
+		ply:ACIDS_CreateACTimer()
+	
+	end )
 	
 	--> REMOVE THE ANTICHEAT TIMER <--
 	
 	function PLAYER:ACIDS_RemoveACTimer()
 	
 		local ID = tostring( self:SteamID64() )
+		
+		timer.Remove( 'ACIDS_ACTimer_' .. ID )
+		
+		print( '[ ACIDS ] ' .. self:Name() .. "'s AntiCheat Timer Has Been Removed" )
 	
 	end
+	
+	hook.Add( 'PlayerDisconnected', 'RemoveACTimer', function( ply )
+	
+		ply:ACIDS_RemoveACTimer()
+	
+	end )
 
 end
